@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linear Chess</title>
+    <link rel="stylesheet" href="chess.css">
+</head>
+<body>
+
+    <h2>Linear Chess</h2>
+    <p id="game-status" aria-live="polite"></p>
+    <p>Scroll horizontally to see the whole board. Click a piece, then click a square to move.</p>
+    <div id="board-loading">Board loading...</div>
+    <div id="turn-indicator">White to move</div>
+
+    <div class="board-wrapper">
+        <div class="board" id="board">
+            </div>
+    </div>
+    <div id="selected-piece-indicator">Selected: none</div>
+    <div id="preview-wrapper" class="preview-wrapper">
+        <p class="preview-title">8x8 Preview (Read-only)</p>
+        <div id="preview-board" class="preview-board"></div>
+    </div>
+    <details class="settings-panel">
+        <summary><span>Settings</span><span class="summary-arrow">▶</span></summary>
+        <div class="settings-content">
+            <div class="settings-row">
+                <label for="size-slider">Square size</label>
+                <input type="range" id="size-slider" min="29" max="110" value="72" step="1">
+                <span id="size-value">72px</span>
+            </div>
+            <div class="settings-row">
+                <label for="fen-input">FEN</label>
+                <input
+                    type="text"
+                    id="fen-input"
+                    spellcheck="false"
+                    value="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+                    placeholder="Paste FEN here"
+                >
+                <button type="button" id="apply-fen">Apply FEN</button>
+                <button type="button" id="restart-game">Restart Game</button>
+            </div>
+            <div class="settings-row">
+                <label><input type="checkbox" id="enable-ai-checkbox"> Enable AI opponent</label>
+            </div>
+            <div id="ai-settings" class="ai-settings" hidden>
+                <div class="settings-row">
+                    <label for="ai-level">AI Level</label>
+                    <select id="ai-level">
+                        <option value="1">1 - Beginner</option>
+                        <option value="2">2 - Easy</option>
+                        <option value="3" selected>3 - Intermediate</option>
+                        <option value="4">4 - Advanced</option>
+                        <option value="5">5 - Expert</option>
+                    </select>
+                    <label for="player-side">You Play</label>
+                    <select id="player-side">
+                        <option value="white" selected>White</option>
+                        <option value="black">Black</option>
+                        <option value="random">Random</option>
+                    </select>
+                </div>
+                <div id="ai-status" aria-live="polite"></div>
+            </div>
+            <div class="settings-row">
+                <div class="settings-checks">
+                    <label><input type="checkbox" id="show-preview-checkbox"> Show 8x8 preview</label>
+                    <label><input type="checkbox" id="show-selected-checkbox" checked> Show selected piece panel</label>
+                    <label><input type="checkbox" id="show-notations-checkbox" checked> Show square notations</label>
+                </div>
+            </div>
+            <div id="fen-status" aria-live="polite"></div>
+        </div>
+    </details>
+
+    <section class="faq-panel" aria-label="FAQ">
+        <details class="faq-item">
+            <summary><span>What is this game?</span><span class="summary-arrow">▶</span></summary>
+            <div class="faq-answer">
+                This is standard chess with all normal rules, but displayed as a single 1D strip of 64 squares.
+                Moves are still validated using real 8x8 chess logic, and you can optionally view the synced 8x8 preview board.
+            </div>
+        </details>
+        <details class="faq-item">
+            <summary><span>Why create this?</span><span class="summary-arrow">▶</span></summary>
+            <div class="faq-answer">Other than "why not?", comments on Hacker News by <a href="https://news.ycombinator.com/item?id=47723041" target="_blank" rel="noopener noreferrer">traderj0e</a> and <a href="https://news.ycombinator.com/item?id=47724362" target="_blank" rel="noopener noreferrer">highphive</a> were a direct inspiration.</div>
+        </details>
+        <details class="faq-item">
+            <summary><span>What AI/Chess Engine is used?</span><span class="summary-arrow">▶</span></summary>
+            <div class="faq-answer">This uses <a href="https://github.com/josefjadrny/js-chess-engine" target="_blank" rel="noopener noreferrer">js-chess-engine</a> in the browser for legal move validation, game-state checks (check/checkmate/stalemate), and the optional AI opponent with selectable levels 1-5 from Beginner to Expert.</div>
+        </details>
+        <details class="faq-item">
+            <summary><span>Who created this?</span><span class="summary-arrow">▶</span></summary>
+            <div class="faq-answer">Hasan Nahleh, Founder of <a href="https://youbee.ai" target="_blank" rel="noopener noreferrer">YouBee.ai</a>.</div>
+        </details>
+    </section>
+
+    <div id="promotion-modal" class="promotion-modal" aria-hidden="true">
+        <div class="promotion-dialog" role="dialog" aria-modal="true" aria-labelledby="promotion-title">
+            <h3 id="promotion-title" class="promotion-title">Choose Promotion</h3>
+            <div id="promotion-options" class="promotion-options"></div>
+        </div>
+    </div>
+
+    <script src="chess.js"></script>
+
+</body>
+</html>
