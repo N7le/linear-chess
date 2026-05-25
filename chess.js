@@ -54,6 +54,7 @@
         const selectedPieceIndicator = document.getElementById('selected-piece-indicator');
         const sizeSlider = document.getElementById('size-slider');
         const sizeValue = document.getElementById('size-value');
+        const fitToScreenButton = document.getElementById('fit-to-screen');
         const fenInput = document.getElementById('fen-input');
         const applyFenButton = document.getElementById('apply-fen');
         const restartGameButton = document.getElementById('restart-game');
@@ -70,6 +71,9 @@
         const previewBoard = document.getElementById('preview-board');
         const promotionModal = document.getElementById('promotion-modal');
         const promotionOptions = document.getElementById('promotion-options');
+        const modeModal = document.getElementById('mode-modal');
+        const startVsAiButton = document.getElementById('start-vs-ai');
+        const startHumanVsHumanButton = document.getElementById('start-human-vs-human');
 
         const BOARD_SIZE = 8;
         const DEFAULT_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1';
@@ -92,6 +96,7 @@
         let playerSide = 'white';
         let aiSide = 'black';
         let previewVisible = false;
+        let modeSelectionPending = true;
 
         const PIECE_TO_FEN = {
             '♙': 'P',
@@ -107,6 +112,19 @@
             '♛': 'q',
             '♚': 'k'
         };
+
+        function getRenderedPieceChar(pieceChar) {
+            const filledWhiteMap = {
+                '♙': '♟',
+                '♖': '♜',
+                '♘': '♞',
+                '♗': '♝',
+                '♕': '♛',
+                '♔': '♚'
+            };
+
+            return filledWhiteMap[pieceChar] || pieceChar;
+        }
 
         function boardConfigToBoardState(config) {
             const nextBoard = Array(64).fill('');
@@ -146,9 +164,11 @@
             playerSide = resolvePlayerSide();
             aiSide = playerSide === 'white' ? 'black' : 'white';
             aiLevel = Number(aiLevelSelect.value);
-            aiStatus.textContent = aiEnabled
-                ? `You play ${getSideLabel(playerSide)}. AI is ${getSideLabel(aiSide)} (level ${aiLevel}).`
-                : 'AI disabled. You control both sides.';
+            if (aiStatus) {
+                aiStatus.textContent = aiEnabled
+                    ? `You play ${getSideLabel(playerSide)}. AI is ${getSideLabel(aiSide)} (level ${aiLevel}).`
+                    : 'AI disabled. You control both sides.';
+            }
             updateGameStatus();
         }
 
@@ -160,6 +180,22 @@
 
         function updateAiSettingsVisibility() {
             aiSettingsPanel.hidden = !enableAiCheckbox.checked;
+        }
+
+        function closeModePrompt() {
+            modeSelectionPending = false;
+            modeModal.classList.remove('open');
+            modeModal.setAttribute('aria-hidden', 'true');
+            void maybePlayAiTurn();
+        }
+
+        function selectGameMode(playVsAi) {
+            enableAiCheckbox.checked = playVsAi;
+            aiLevelSelect.value = '3';
+            playerSideSelect.value = 'white';
+            updateAiSettingsVisibility();
+            applyAiSettings();
+            closeModePrompt();
         }
 
         function updatePreviewVisibility() {
@@ -369,7 +405,7 @@
             } else if (pieceColor === 'black') {
                 pieceSpan.classList.add('black-piece');
             }
-            pieceSpan.textContent = pieceChar;
+            pieceSpan.textContent = getRenderedPieceChar(pieceChar);
             return pieceSpan;
         }
 
@@ -423,6 +459,29 @@
             sizeValue.textContent = `${squareSizePx}px`;
         }
 
+        function getLargestFitSize() {
+            const wrapperWidth = board.parentElement ? board.parentElement.clientWidth : 0;
+            const totalSquares = squares.length || 64;
+            const sliderMin = Number(sizeSlider.min) || 24;
+            const sliderMax = Number(sizeSlider.max) || 110;
+            const rawFit = Math.floor(wrapperWidth / totalSquares);
+
+            return {
+                fitSize: Math.min(sliderMax, rawFit),
+                sliderMin
+            };
+        }
+
+        function updateFitToScreenButtonVisibility() {
+            if (!fitToScreenButton) {
+                return;
+            }
+
+            const { fitSize, sliderMin } = getLargestFitSize();
+            const shouldShow = fitSize >= Math.max(24, sliderMin);
+            fitToScreenButton.hidden = !shouldShow;
+        }
+
         function clearLegalMoveHighlights() {
             legalMoves.forEach((move) => {
                 const square = getSquareAtLogicalIndex(move.to);
@@ -460,7 +519,7 @@
             }
 
             const notation = logicalIndexToNotation(selectedIndex);
-            selectedPieceIndicator.innerHTML = `<span class="label">Selected Piece</span><span class="piece-slot"><span class="piece ${side}-piece">${pieceChar}</span></span><span class="meta"><span class="notation-label">Square</span><span class="notation-value">${notation}</span></span>`;
+            selectedPieceIndicator.innerHTML = `<span class="label">Selected Piece</span><span class="piece-slot"><span class="piece ${side}-piece">${getRenderedPieceChar(pieceChar)}</span></span><span class="meta"><span class="notation-label">Square</span><span class="notation-value">${notation}</span></span>`;
         }
 
         function clearSelection() {
@@ -728,7 +787,7 @@
         }
 
         board.addEventListener('click', (e) => {
-            if (gameOver || promotionPending || aiThinking || (aiEnabled && currentTurn !== playerSide)) {
+            if (modeSelectionPending || gameOver || promotionPending || aiThinking || (aiEnabled && currentTurn !== playerSide)) {
                 return;
             }
 
@@ -769,6 +828,16 @@
         sizeSlider.addEventListener('input', (e) => {
             applyBoardSize(Number(e.target.value));
         });
+        fitToScreenButton.addEventListener('click', () => {
+            const { fitSize, sliderMin } = getLargestFitSize();
+            if (fitSize < Math.max(24, sliderMin)) {
+                return;
+            }
+
+            sizeSlider.value = String(fitSize);
+            applyBoardSize(fitSize);
+        });
+        window.addEventListener('resize', updateFitToScreenButtonVisibility);
 
         showPreviewCheckbox.addEventListener('change', updatePreviewVisibility);
         showSelectedCheckbox.addEventListener('change', updateSelectedPanelVisibility);
@@ -786,6 +855,12 @@
             applyAiSettings();
             clearSelection();
             void maybePlayAiTurn();
+        });
+        startVsAiButton.addEventListener('click', () => {
+            selectGameMode(true);
+        });
+        startHumanVsHumanButton.addEventListener('click', () => {
+            selectGameMode(false);
         });
 
         applyFenButton.addEventListener('click', () => {
@@ -819,6 +894,7 @@
         });
 
         applyBoardSize(Number(sizeSlider.value));
+        updateFitToScreenButtonVisibility();
         initializePreviewBoard();
         syncFromEngineBoard(engineStatus(DEFAULT_FEN));
         renderBoardPieces();
@@ -826,10 +902,11 @@
         updateSelectedPanelVisibility();
         updateNotationVisibility();
         updateAiSettingsVisibility();
+        aiLevelSelect.value = '3';
+        playerSideSelect.value = 'white';
         applyAiSettings();
         evaluateGameState();
         updateSelectedPieceIndicator();
         setFenStatus('');
         boardLoading.style.display = 'none';
-        void maybePlayAiTurn();
         })();

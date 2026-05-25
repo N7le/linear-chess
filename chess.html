@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Linear Chess</title>
-    <link rel="stylesheet" href="chess.css">
+    <link rel="stylesheet" href="chess.css?v=2">
 </head>
 <body>
 
@@ -23,31 +23,23 @@
         <p class="preview-title">8x8 Preview (Read-only)</p>
         <div id="preview-board" class="preview-board"></div>
     </div>
-    <details class="settings-panel">
+    <details class="settings-panel" open>
         <summary><span>Settings</span><span class="summary-arrow">▶</span></summary>
         <div class="settings-content">
             <div class="settings-row">
-                <label for="size-slider">Square size</label>
-                <input type="range" id="size-slider" min="29" max="110" value="72" step="1">
-                <span id="size-value">72px</span>
+                <button type="button" id="restart-game">Restart Game</button>
             </div>
             <div class="settings-row">
-                <label for="fen-input">FEN</label>
-                <input
-                    type="text"
-                    id="fen-input"
-                    spellcheck="false"
-                    value="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-                    placeholder="Paste FEN here"
-                >
-                <button type="button" id="apply-fen">Apply FEN</button>
-                <button type="button" id="restart-game">Restart Game</button>
+                <label for="size-slider">Square size</label>
+                <input type="range" id="size-slider" min="24" max="110" value="48" step="1">
+                <span id="size-value">72px</span>
+                <button type="button" id="fit-to-screen">Fit to screen</button>
             </div>
             <div class="settings-row">
                 <label><input type="checkbox" id="enable-ai-checkbox"> Enable AI opponent</label>
             </div>
             <div id="ai-settings" class="ai-settings" hidden>
-                <div class="settings-row">
+                <div class="settings-row ai-controls-row">
                     <label for="ai-level">AI Level</label>
                     <select id="ai-level">
                         <option value="1">1 - Beginner</option>
@@ -63,7 +55,6 @@
                         <option value="random">Random</option>
                     </select>
                 </div>
-                <div id="ai-status" aria-live="polite"></div>
             </div>
             <div class="settings-row">
                 <div class="settings-checks">
@@ -71,6 +62,17 @@
                     <label><input type="checkbox" id="show-selected-checkbox" checked> Show selected piece panel</label>
                     <label><input type="checkbox" id="show-notations-checkbox" checked> Show square notations</label>
                 </div>
+            </div>
+            <div class="settings-row">
+                <label for="fen-input">FEN</label>
+                <input
+                    type="text"
+                    id="fen-input"
+                    spellcheck="false"
+                    value="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+                    placeholder="Paste FEN here"
+                >
+                <button type="button" id="apply-fen">Apply FEN</button>
             </div>
             <div id="fen-status" aria-live="polite"></div>
         </div>
@@ -86,7 +88,7 @@
         </details>
         <details class="faq-item">
             <summary><span>Why create this?</span><span class="summary-arrow">▶</span></summary>
-            <div class="faq-answer">Other than "why not?", comments on Hacker News by <a href="https://news.ycombinator.com/item?id=47723041" target="_blank" rel="noopener noreferrer">traderj0e</a> and <a href="https://news.ycombinator.com/item?id=47724362" target="_blank" rel="noopener noreferrer">highphive</a> were a direct inspiration.</div>
+            <div class="faq-answer">Other than "why not?", comments on Hacker News by <a href="https://news.ycombinator.com/item?id=47723041" target="_blank" rel="noopener noreferrer">traderj0e</a> and <a href="https://news.ycombinator.com/item?id=47724362" target="_blank" rel="noopener noreferrer">highphive</a> were a direct inspiration. It might also help with blindfold-style board visualization training... or at least that is the theory. I am around 1500 on LiChess, so please treat this as "enthusiastic field research," not grandmaster-certified science.</div>
         </details>
         <details class="faq-item">
             <summary><span>What AI/Chess Engine is used?</span><span class="summary-arrow">▶</span></summary>
@@ -94,7 +96,7 @@
         </details>
         <details class="faq-item">
             <summary><span>Who created this?</span><span class="summary-arrow">▶</span></summary>
-            <div class="faq-answer">Hasan Nahleh, Founder of <a href="https://youbee.ai" target="_blank" rel="noopener noreferrer">YouBee.ai</a>.</div>
+            <div class="faq-answer"><a href="https://www.linkedin.com/in/nahleh/" target="_blank" rel="noopener noreferrer">Hasan Nahleh</a>, Founder of <a href="https://youbee.ai" target="_blank" rel="noopener noreferrer">YouBee.ai</a>. Source code: <a href="https://github.com/N7le/linear-chess" target="_blank" rel="noopener noreferrer">GitHub</a>.</div>
         </details>
     </section>
 
@@ -105,7 +107,17 @@
         </div>
     </div>
 
-    <script src="chess.js"></script>
+    <div id="mode-modal" class="mode-modal open" aria-hidden="false">
+        <div class="mode-dialog" role="dialog" aria-modal="true" aria-labelledby="mode-title" aria-describedby="mode-description">
+            <h3 id="mode-title" class="mode-title">Choose Game Mode</h3>
+            <div class="mode-actions">
+                <button type="button" id="start-vs-ai" class="mode-button primary">Player vs AI</button>
+                <button type="button" id="start-human-vs-human" class="mode-button">Player vs Player (Offline)</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="chess.js?v=2"></script>
 
 </body>
 </html>

@@ -78,17 +78,14 @@ p {
     z-index: 3;
 }
 
-/* Alternating Colors */
 .light { background-color: #f0d9b5; }
 .dark { background-color: #b58863; }
 
-/* Highlight square when dragging over it */
 .square.drag-over {
     opacity: 0.8;
     box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
 }
 
-/* Chess Pieces */
 .piece {
     cursor: pointer;
     user-select: none;
@@ -345,7 +342,8 @@ details[open] > summary .summary-arrow {
 }
 
 #apply-fen,
-#restart-game {
+#restart-game,
+#fit-to-screen {
     padding: 8px 12px;
     border: 1px solid rgba(255,255,255,0.2);
     border-radius: 8px;
@@ -356,7 +354,8 @@ details[open] > summary .summary-arrow {
 }
 
 #apply-fen:hover,
-#restart-game:hover {
+#restart-game:hover,
+#fit-to-screen:hover {
     background: rgba(92,200,255,0.28);
 }
 
@@ -491,6 +490,80 @@ details[open] > summary .summary-arrow {
     font-size: 38px;
 }
 
+.mode-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(12, 14, 18, 0.74);
+    backdrop-filter: blur(2px) grayscale(0.12);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    z-index: 100;
+}
+
+.mode-modal.open {
+    display: flex;
+}
+
+.mode-dialog {
+    width: min(92vw, 520px);
+    min-height: 220px;
+    background: #1f1f1f;
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 14px;
+    box-shadow: 0 18px 38px rgba(0,0,0,0.45);
+    padding: 22px 22px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.mode-title {
+    margin: 0;
+    font-size: 22px;
+    color: #eef8ff;
+}
+
+.mode-description {
+    margin: 10px 0 0;
+    color: #d6e6f5;
+    line-height: 1.45;
+    font-size: 14px;
+}
+
+.mode-actions {
+    margin-top: 14px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.mode-button {
+    border: 1px solid rgba(255,255,255,0.22);
+    border-radius: 8px;
+    padding: 9px 12px;
+    color: #f0f7fd;
+    font-weight: 700;
+    cursor: pointer;
+    background: rgba(255,255,255,0.08);
+}
+
+.mode-button:hover {
+    background: rgba(255,255,255,0.14);
+}
+
+.mode-button.primary {
+    background: rgba(92,200,255,0.28);
+    border-color: rgba(92,200,255,0.55);
+}
+
+.mode-button.primary:hover {
+    background: rgba(92,200,255,0.4);
+}
+
 #selected-piece-indicator {
     margin: 10px auto 0;
     min-height: 64px;
@@ -595,10 +668,39 @@ details[open] > summary .summary-arrow {
     position: relative;
     align-items: center;
     justify-content: center;
-    font-size: 30px;
+    font-size: 34px;
 }
 
 .preview-piece {
-    font-size: 30px;
+    font-size: 34px;
     line-height: 1;
+}
+
+@media (max-width: 640px) {
+    .settings-checks {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .settings-checks label {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .ai-controls-row {
+        display: grid;
+        grid-template-columns: minmax(84px, auto) minmax(0, 1fr);
+        gap: 10px 12px;
+        align-items: center;
+    }
+
+    .ai-controls-row label {
+        justify-self: start;
+    }
+
+    .ai-controls-row select {
+        width: 100%;
+        min-width: 0;
+    }
 }
