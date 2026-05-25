@@ -4,6 +4,10 @@ Linear Chess is a browser-based chess experiment that keeps standard chess rules
 
 Under the hood, move validation and game-state logic are still true 8x8 chess. You can optionally show a synced 8x8 preview board while playing on the linear layout.
 
+## Demo
+
+- Hosted demo: [https://youbee.cloud/chess/chess.html](https://youbee.cloud/chess/chess.html)
+
 ## Features
 
 - 1D board UI with 64 squares in a single row
