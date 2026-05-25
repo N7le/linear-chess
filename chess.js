@@ -14,11 +14,11 @@
             '♖','♘','♗','♕','♔','♗','♘','♖'
         ];
 
-        [...initialSetup].reverse().forEach((_, index) => {
+        initialSetup.forEach((_, index) => {
             const squareDiv = document.createElement('div');
             squareDiv.classList.add('square');
             squareDiv.dataset.index = String(index);
-            const logicalIndex = initialSetup.length - 1 - index;
+            const logicalIndex = index;
             squareDiv.dataset.logicalIndex = String(logicalIndex);
 
             const row = Math.floor(index / 8);
@@ -65,6 +65,7 @@
         const playerSideSelect = document.getElementById('player-side');
         const aiSettingsPanel = document.getElementById('ai-settings');
         const showPreviewCheckbox = document.getElementById('show-preview-checkbox');
+        const flipBoardCheckbox = document.getElementById('flip-board-checkbox');
         const showSelectedCheckbox = document.getElementById('show-selected-checkbox');
         const showNotationsCheckbox = document.getElementById('show-notations-checkbox');
         const previewWrapper = document.getElementById('preview-wrapper');
@@ -96,6 +97,7 @@
         let playerSide = 'white';
         let aiSide = 'black';
         let previewVisible = false;
+        let boardFlipped = flipBoardCheckbox ? flipBoardCheckbox.checked : false;
         let modeSelectionPending = true;
 
         const PIECE_TO_FEN = {
@@ -180,6 +182,31 @@
 
         function updateAiSettingsVisibility() {
             aiSettingsPanel.hidden = !enableAiCheckbox.checked;
+        }
+
+        function updateBoardRowBreaks() {
+            squares.forEach((square) => {
+                const logicalIndex = Number(square.dataset.logicalIndex);
+                const shouldBreak = boardFlipped
+                    ? logicalIndex % 8 === 0 && logicalIndex !== 0
+                    : logicalIndex % 8 === 7 && logicalIndex !== 63;
+                square.classList.toggle('row-break', shouldBreak);
+            });
+        }
+
+        function applyBoardOrientation() {
+            const orderedSquares = boardFlipped ? [...squares].reverse() : squares;
+            orderedSquares.forEach((square) => {
+                board.appendChild(square);
+            });
+
+            const previewSquares = Array.from(previewBoard.querySelectorAll('.preview-square'));
+            const orderedPreviewSquares = boardFlipped ? [...previewSquares].reverse() : previewSquares;
+            orderedPreviewSquares.forEach((square) => {
+                previewBoard.appendChild(square);
+            });
+
+            updateBoardRowBreaks();
         }
 
         function closeModePrompt() {
@@ -840,6 +867,13 @@
         window.addEventListener('resize', updateFitToScreenButtonVisibility);
 
         showPreviewCheckbox.addEventListener('change', updatePreviewVisibility);
+        flipBoardCheckbox.addEventListener('change', () => {
+            boardFlipped = flipBoardCheckbox.checked;
+            applyBoardOrientation();
+            if (previewVisible) {
+                renderPreviewBoard();
+            }
+        });
         showSelectedCheckbox.addEventListener('change', updateSelectedPanelVisibility);
         showNotationsCheckbox.addEventListener('change', updateNotationVisibility);
         enableAiCheckbox.addEventListener('change', () => {
@@ -896,6 +930,7 @@
         applyBoardSize(Number(sizeSlider.value));
         updateFitToScreenButtonVisibility();
         initializePreviewBoard();
+        applyBoardOrientation();
         syncFromEngineBoard(engineStatus(DEFAULT_FEN));
         renderBoardPieces();
         updatePreviewVisibility();
